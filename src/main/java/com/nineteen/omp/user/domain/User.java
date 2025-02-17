@@ -1,11 +1,8 @@
 package com.nineteen.omp.user.domain;
 
 
-import com.nineteen.omp.auth.domain.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,11 +24,4 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "user_id", updatable = false, nullable = false)
   private Long id;
-
-  private String username;
-  private String password;
-
-  @Enumerated(value = EnumType.STRING)
-  private Role role;
-
 }
