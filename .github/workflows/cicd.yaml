@@ -115,6 +115,7 @@ jobs:
 
             # IDLE_PROFILE로 배포
             echo "Deploying to $IDLE_PROFILE"
+            ssh -o StrictHostKeyChecking=no -i ~/id_rsa ubuntu@$IDLE_HOST "mkdir -p /home/ubuntu/app"
 
             # 혹시 모를 이전 이미지 삭제
             ## redis            
