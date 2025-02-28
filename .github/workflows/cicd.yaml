@@ -181,7 +181,7 @@ jobs:
               echo "Attempt $i: Checking health status..."
               RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://$CURRENT_HOST/api/v1/profile)
 
-              if [ "$RESPONSE_CODE" -ge 500 ]; then
+              if [[ "$RESPONSE_CODE" -ge 500 || "$RESPONSE_CODE" == "000" ]]; then
                 echo "서비스가 정상적으로 종료됨 (응답 코드: $RESPONSE_CODE)"
                 break
               else
