@@ -106,7 +106,7 @@ public class JwtFilter extends OncePerRequestFilter {
     String path = request.getRequestURI();
     return path.startsWith("/favicon.ico") || path.startsWith("/api/v1/users/login") ||
         path.startsWith("/api/v1/users/signup") || path.startsWith("/api/v1/profile") ||
-        path.startsWith("/api/v1/users/refresh") || path.startsWith("/api/v1/test/sleep");
+        path.startsWith("/api/v1/users/refresh") || path.startsWith("/api/v1/profile/sleep");
   }
 
 }
