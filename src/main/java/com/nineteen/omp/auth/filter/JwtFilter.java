@@ -10,7 +10,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +23,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
-
-  private static List<String> PASS_URI_PATTERN = List.of(
-      "/api/v1/users/login",
-      "/api/v1/users/signup",
-      "/api/v1/profile",
-      "/favicon.ico"
-  );
 
   private final JwtProvider jwtProvider;
   private final JwtHeaderHandler jwtHeaderHandler;
@@ -46,12 +38,6 @@ public class JwtFilter extends OncePerRequestFilter {
     String requestUri = request.getRequestURI();
 
     log.info("JwtFilter requestUri: {}", requestUri);
-
-    if (isLoginRequest(requestUri)) {
-      log.info("login request");
-      filterChain.doFilter(request, response);
-      return;
-    }
 
     String refreshToken = jwtHeaderHandler.getRefreshToken(request);
     String accessToken = jwtHeaderHandler.getAccessToken(request);
@@ -115,7 +101,12 @@ public class JwtFilter extends OncePerRequestFilter {
     );
   }
 
-  private boolean isLoginRequest(String uri) {
-    return PASS_URI_PATTERN.contains(uri);
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    String path = request.getRequestURI();
+    return path.startsWith("/favicon.ico") || path.startsWith("/api/v1/users/login") ||
+        path.startsWith("/api/v1/users/signup") || path.startsWith("/api/v1/profile") ||
+        path.startsWith("/api/v1/users/refresh") || path.startsWith("/api/v1/test/sleep");
   }
+
 }
