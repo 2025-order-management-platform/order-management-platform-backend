@@ -48,8 +48,10 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/", "/api/v1/users/login", "/api/v1/users/signup",
-                "/api/v1/profile", "/favicon.ico")
+            .requestMatchers(
+                "/", "/api/v1/users/login", "/api/v1/users/signup",
+                "/api/v1/profile", "/api/v1/test/sleep", "/favicon.ico"
+            )
             .permitAll()
             .anyRequest().authenticated()
         )
