@@ -1,11 +1,13 @@
 package com.nineteen.omp.payment.service;
 
 import com.nineteen.omp.coupon.domain.UserCoupon;
-import com.nineteen.omp.global.exception.CustomException;
 import com.nineteen.omp.order.domain.Order;
 import com.nineteen.omp.payment.domain.Payment;
 import com.nineteen.omp.payment.domain.PaymentStatus;
-import com.nineteen.omp.payment.exception.PaymentExceptionCode;
+import com.nineteen.omp.payment.exception.PaymentException.PaymentNotFoundException;
+import com.nineteen.omp.payment.exception.PaymentException.PaymentNotOwnerException;
+import com.nineteen.omp.payment.exception.PaymentException.PaymentNotUserException;
+import com.nineteen.omp.payment.exception.PaymentException.PaymentNotValidCancelRequestException;
 import com.nineteen.omp.payment.repository.PaymentRepository;
 import com.nineteen.omp.payment.service.dto.CreatePaymentRequestCommand;
 import com.nineteen.omp.payment.service.dto.ExecutePaymentRequestCommand;
@@ -53,11 +55,7 @@ public class PaymentServiceImpl implements PaymentService {
   }
 
   private ExecutePaymentResponseCommand executePaymentGateway(Payment newPayment) {
-    PaymentGatewayService paymentGatewayService = null;
-//    if (newPayment.getPgProvider().equals(PgProvider.MOCK_PAY)) {
-//      paymentGatewayService = new MockPaymentGatewayService();
-//    }
-    paymentGatewayService = new DummyPaymentGatewayService();
+    PaymentGatewayService paymentGatewayService = new DummyPaymentGatewayService();
     ExecutePaymentRequestCommand executePaymentRequestCommand =
         new ExecutePaymentRequestCommand(newPayment);
     return paymentGatewayService.executePayment(executePaymentRequestCommand);
@@ -67,14 +65,14 @@ public class PaymentServiceImpl implements PaymentService {
   @Transactional
   public void cancelPayment(UUID paymentId) {
     Payment payment = paymentRepository.findById(paymentId)
-        .orElseThrow(() -> new CustomException(PaymentExceptionCode.NOT_FOUND_PAYMENT));
+        .orElseThrow(PaymentNotFoundException::new);
     payment.cancelForce();
   }
 
   @Override
   public GetPaymentResponseCommand getPaymentById(UUID paymentId) {
     Payment payment = paymentRepository.findById(paymentId)
-        .orElseThrow(() -> new CustomException(PaymentExceptionCode.NOT_FOUND_PAYMENT));
+        .orElseThrow(PaymentNotFoundException::new);
     return new GetPaymentResponseCommand(payment);
   }
 
@@ -102,9 +100,9 @@ public class PaymentServiceImpl implements PaymentService {
   @Override
   public void isOwnersPayment(Long ownerId, UUID paymentId) {
     Payment payment = paymentRepository.findById(paymentId)
-        .orElseThrow(() -> new CustomException(PaymentExceptionCode.NOT_FOUND_PAYMENT));
+        .orElseThrow(PaymentNotFoundException::new);
     if (!payment.getOrder().getStore().getUser().getId().equals(ownerId)) {
-      throw new CustomException(PaymentExceptionCode.NOT_OWNER_PAYMENT);
+      throw new PaymentNotOwnerException();
     }
   }
 
@@ -112,9 +110,9 @@ public class PaymentServiceImpl implements PaymentService {
   @Transactional
   public void cancelPaymentRequest(Long userId, UUID paymentId) {
     Payment payment = paymentRepository.findById(paymentId)
-        .orElseThrow(() -> new CustomException(PaymentExceptionCode.NOT_FOUND_PAYMENT));
+        .orElseThrow(PaymentNotFoundException::new);
     if (!payment.getOrder().getUser().getId().equals(userId)) {
-      throw new CustomException(PaymentExceptionCode.NOT_USER_PAYMENT);
+      throw new PaymentNotUserException();
     }
     payment.cancelRequest();
   }
@@ -123,9 +121,9 @@ public class PaymentServiceImpl implements PaymentService {
   @Transactional
   public void cancelPaymentRequestDenied(UUID paymentId) {
     Payment payment = paymentRepository.findById(paymentId)
-        .orElseThrow(() -> new CustomException(PaymentExceptionCode.NOT_FOUND_PAYMENT));
+        .orElseThrow(PaymentNotFoundException::new);
     if (!payment.isCancelRequest()) {
-      throw new CustomException(PaymentExceptionCode.NOT_VALID_CANCEL_REQUEST);
+      throw new PaymentNotValidCancelRequestException();
     }
     payment.cancelRequestDenied();
   }
@@ -133,9 +131,9 @@ public class PaymentServiceImpl implements PaymentService {
   @Override
   public void isUsersPayment(Long userId, UUID paymentId) {
     Payment payment = paymentRepository.findById(paymentId)
-        .orElseThrow(() -> new CustomException(PaymentExceptionCode.NOT_FOUND_PAYMENT));
+        .orElseThrow(PaymentNotFoundException::new);
     if (!payment.getOrder().getUser().getId().equals(userId)) {
-      throw new CustomException(PaymentExceptionCode.NOT_USER_PAYMENT);
+      throw new PaymentNotUserException();
     }
   }
 
