@@ -50,7 +50,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(
                 "/", "/api/v1/users/login", "/api/v1/users/signup",
-                "/api/v1/profile", "/api/v1/test/sleep", "/favicon.ico"
+                "/api/v1/profile", "/api/v1/profile/sleep", "/favicon.ico"
             )
             .permitAll()
             .anyRequest().authenticated()
